@@ -140,3 +140,5 @@ C:\Users\Kero\source\repos\Graduation Project\Graduation Project\obj\Release\net
 C:\Users\Kero\source\repos\Graduation Project\Graduation Project\obj\Release\net8.0\Graduation Project.pdb
 C:\Users\Kero\source\repos\Graduation Project\Graduation Project\obj\Release\net8.0\Graduation Project.genruntimeconfig.cache
 C:\Users\Kero\source\repos\Graduation Project\Graduation Project\obj\Release\net8.0\ref\Graduation Project.dll
+C:\Users\Kero\source\repos\Graduation Project\Graduation Project\obj\Release\net8.0\Graduation Project.sourcelink.json
+C:\Users\Kero\source\repos\Graduation Project\Graduation Project\bin\Release\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

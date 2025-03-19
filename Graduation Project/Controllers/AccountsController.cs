@@ -1,7 +1,12 @@
 ﻿using Graduation_Project.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Graduation_Project.Controllers
 {
@@ -9,10 +14,12 @@ namespace Graduation_Project.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
+        private readonly IConfiguration config;
         context context;
-        public AccountsController(context _context) 
-        { 
+        public AccountsController(context _context, IConfiguration config) //to read from appsettings 
+        {
             context = _context;
+            this.config = config;
         }
         [HttpPost("register")]
         public IActionResult register([FromBody] RegisterDTO model)
@@ -20,7 +27,7 @@ namespace Graduation_Project.Controllers
 
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState); 
+                return BadRequest(ModelState);
             }
             bool emailExists = context.students.Any(s => s.email == model.email) ||
                                context.teachers.Any(t => t.email == model.email) ||
@@ -33,8 +40,7 @@ namespace Graduation_Project.Controllers
             {
                 var student = new students
                 {
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
+                    Name = model.Name,
                     email = model.email,
                     password = model.password,
                     grade = model.grade,
@@ -46,8 +52,7 @@ namespace Graduation_Project.Controllers
             {
                 var teacher = new Teachers
                 {
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
+                    Name = model.Name,
                     email = model.email,
                     password = model.password,
                     subject = model.subject
@@ -58,17 +63,16 @@ namespace Graduation_Project.Controllers
             {
                 var user = new Users
                 {
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
+                    Name = model.Name,
                     email = model.email,
                     password = model.password
                 };
                 context.users.Add(user);
             }
             context.SaveChanges();
-            return Created();
+            return Ok("Created");
 
-            }
+        }
         [HttpPost("Login")]
         public IActionResult login([FromBody] LoginDTO model)
         {
@@ -76,34 +80,120 @@ namespace Graduation_Project.Controllers
             {
                 return BadRequest(ModelState);
             }
+
+            // Check if student exists
             var student = context.students
                 .FirstOrDefault(s => s.email == model.email && s.password == model.password);
-            if (student != null )
+            if (student != null)
             {
-                return Ok("Student logged in successfully.");
+                // Generate JWT for the student
+                var userClaims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.NameIdentifier, student.StudentID.ToString()),
+            new Claim(ClaimTypes.Name, student.Name),
+            new Claim(ClaimTypes.Role, "Student") // Assign role 'Student'
+        };
+
+                var token = GenerateJwtToken(userClaims);
+                return Ok(new { Token = token, expiration = DateTime.Now.AddHours(1), Message = "Student logged in successfully.",email=student.email,name=student.Name,grade=student.grade });
             }
+
+            // Check if teacher exists
             var teacher = context.teachers
                 .FirstOrDefault(t => t.email == model.email && t.password == model.password);
-
             if (teacher != null)
             {
-                return Ok("Teacher logged in successfully.");
+                // Generate JWT for the teacher
+                var userClaims = new List<Claim>
+        {
+                    //token Generated id change(JWT predfined claims)
+            new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.NameIdentifier, teacher.TeacherID.ToString()),
+            new Claim(ClaimTypes.Name, teacher.Name),
+            new Claim(ClaimTypes.Role, "Teacher") // Assign role Teacher
+        };
+
+                var token = GenerateJwtToken(userClaims);
+                return Ok(new { Token = token, expiration = DateTime.Now.AddHours(1), Message = "Teacher logged in successfully.",email=teacher.email,name=teacher.Name,subject=teacher.subject });
             }
+
+            // Check if other user exists
             var user = context.users
                 .FirstOrDefault(u => u.email == model.email && u.password == model.password);
-
             if (user != null)
             {
-                return Ok("Other User logged in successfully.");
+                // Generate JWT for the other user
+                var userClaims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+            new Claim(ClaimTypes.Name, user.Name),
+            new Claim(ClaimTypes.Role, "User") // Assign role 'OtherUser'
+        };
+
+                var token = GenerateJwtToken(userClaims);
+                return Ok(new { Token = token, expiration = DateTime.Now.AddHours(1), Message = " User logged in successfully." });
             }
+            // Check if teacher exists
+            var admin = context.Admins
+                .FirstOrDefault(t => t.Email == model.email && t.Password == model.password);
+            if (admin != null)
+            {
+                // Generate JWT for the teacher
+                var userClaims = new List<Claim>
+        {
+                    //token Generated id change(JWT predefined claims)
+            new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.NameIdentifier,admin .AdminID.ToString()),
+            new Claim(ClaimTypes.Name, admin.FirstName),
+            new Claim(ClaimTypes.Role, "Admin") // Assign role 'Admin'
+        };
+
+                var token = GenerateJwtToken(userClaims);
+                return Ok(new { Token = token, expiration = DateTime.Now.AddHours(1) });
+            }
+
             return Unauthorized("Invalid email or password.");
         }
-        [HttpGet]
-        public IActionResult getusers() 
+
+        private string GenerateJwtToken(List<Claim> claims)
+        {
+            //design token
+            var MyToken = new JwtSecurityToken(
+                audience: config["jwt:AudienceIP"],//to read from appsetting 
+                issuer: config["jwt:IssuerIP"],
+                expires: DateTime.Now.AddHours(1),
+                claims: claims,
+                signingCredentials: new SigningCredentials(
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["jwt:secretKey"])),
+                    SecurityAlgorithms.HmacSha256)
+            );
+            //generate token response
+            var tokenHandler = new JwtSecurityTokenHandler();
+            return tokenHandler.WriteToken(MyToken);
+
+        }
+        [HttpGet("AllStudents")]
+        [Authorize(Roles = "Admin,Teacher")]
+        public IActionResult getStudents()
+        {
+            var u = context.students.ToList();
+            return Ok(u);
+        }
+        [HttpGet("AllTeachers")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult getTeachers()
+        {
+            var u = context.teachers.ToList();
+            return Ok(u);
+        }
+        [HttpGet("AllUser")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult getUsers()
         {
             var u = context.users.ToList();
             return Ok(u);
         }
     }
-    }
-
+}

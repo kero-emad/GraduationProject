@@ -1,4 +1,6 @@
 ﻿using Graduation_Project.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,19 +29,40 @@ namespace Graduation_Project.Controllers
                     hints = q.Hints.Select(h => h.hint).ToList(),
                     correctAnswer = q.answer
                 }).FirstOrDefault();
-           HttpContext.Session.SetString("correctAnswer", question.correctAnswer);
+              if (question == null)
+                {
+                return NotFound("Question not found.");
+                }
+            //var cookieOptions = new CookieOptions
+            //{
+              //  HttpOnly = true, 
+               // Expires = DateTime.Now.AddMinutes(20)
+            //};
+            //Response.Cookies.Append("correctAnswer", question.correctAnswer, cookieOptions);
+            //HttpContext.Session.SetString("correctAnswer", question.correctAnswer);
             return Ok(question);
         }
         
         [HttpPost("ans")]
-        public IActionResult getAnswer([FromBody] string answer)
+        public IActionResult getAnswer(GetAnswerDTO getAnswerDTO)
         {
-            string correctans = HttpContext.Session.GetString("correctAnswer");
+            string correctans = getAnswerDTO.correctanswer;
+            //string correctans = Request.Cookies["correctAnswer"];
+            if (string.IsNullOrEmpty(correctans))
+            {
+                return BadRequest("Correct answer not found in cookie.");
+            }
+            //string correctans = HttpContext.Session.GetString("correctAnswer");
+            //Console.WriteLine($"Correct answer retrieved from session: {correctans}");
+            //if (string.IsNullOrEmpty(correctans))
+           // {
+              //  return BadRequest("Correct answer not found in session.");
+            //}
             bool iscorrect = false;
-            int hintsused = 1;
+            int hintsused = getAnswerDTO.hintsused;
             while (hintsused <= 5)
             {
-                double similarity = calculate(answer, correctans);
+                double similarity = calculate(getAnswerDTO.answer, correctans);
                 if (similarity >= 0.7)
                 {
                     iscorrect = true;
@@ -49,9 +72,9 @@ namespace Graduation_Project.Controllers
                     else if (hintsused == 4) return Ok(10);
                     else if (hintsused == 5) return Ok(5);
                 }
-                else
+                else 
                 {
-                    hintsused++;
+                    return Ok(0);
                 }
             }
             return Ok(0);

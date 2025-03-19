@@ -4,13 +4,9 @@ namespace Graduation_Project.Models
 {
     public class RegisterDTO
     {
-        [Required(ErrorMessage ="First Name is required")]
-        [MinLength(3,ErrorMessage ="First Name can't be less than 3 letters")]
-        public string FirstName {  get; set; }
-
-        [Required(ErrorMessage = "Last Name is required")]
-        [MinLength(3, ErrorMessage = "Last Name can't be less than 3 letters")]
-        public string LastName { get; set; }
+        [Required(ErrorMessage ="Name is required")]
+        [MinLength(3,ErrorMessage ="Name can't be less than 3 letters")]
+        public string Name {  get; set; }
 
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email")]

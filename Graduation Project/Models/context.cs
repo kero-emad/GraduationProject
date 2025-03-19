@@ -6,6 +6,7 @@ namespace Graduation_Project.Models
 
     {
         public DbSet<students> students {  get; set; }
+        public DbSet<Admin> Admins { get; set; }
         public DbSet<Teachers> teachers { get; set; }
         public DbSet<Users>users { get; set; }
         public DbSet<EducationQuestions> educationQuestions { get; set; }
