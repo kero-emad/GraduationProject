@@ -1,4 +1,5 @@
-﻿using Graduation_Project.Models;
+﻿using Azure.Core;
+using Graduation_Project.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -19,11 +20,31 @@ namespace Graduation_Project.Controllers
         [HttpPost("question")]
         public IActionResult getQuestion([FromBody]GetQuestionsDTO getQuestionsDTO) 
         {
+            var gradeSubject = context.gradeSubject
+            .Include(gs => gs.Grades)
+            .Include(gs => gs.Subjects)
+            .FirstOrDefault(gs =>
+                gs.Grades.GradeId == getQuestionsDTO.grade &&
+                gs.Subjects.SubjectName == getQuestionsDTO.subject);
+
+            if (gradeSubject == null)
+                return NotFound("Grade-Subject combination not found");
+
+            var chapter = context.chapters
+              .FirstOrDefault(c =>
+               c.GradeSubjectId == gradeSubject.GradeSubjectId &&
+               c.ChapterNumber == getQuestionsDTO.chapter);
+
+            if (chapter == null)
+                return NotFound("Chapter not found");
+
+
+
             var question = context.educationQuestions.Include(q => q.Hints)
                 .Where
-                (q => q.grade == getQuestionsDTO.grade &&
-                 q.subject == getQuestionsDTO.subject &&
-                 q.chapter == getQuestionsDTO.chapter)
+                (q => q.GradeSubjectId == gradeSubject.GradeSubjectId &&
+                 q.ChapterId == chapter.ChapterId &&
+                 q.game == "five hints")
                 .Select(q => new GetHintsDTO
                 {
                     hints = q.Hints.Select(h => h.hint).ToList(),
@@ -105,6 +126,8 @@ namespace Graduation_Project.Controllers
             return dotProduct / (Math.Sqrt(magnitude1) * Math.Sqrt(magnitude2));
         }
 
+
+        /*
         [HttpPost("makequestion")]
         public IActionResult makequestion([FromBody] MakeQuestionDTO makeQuestionDTO)
         {
@@ -126,6 +149,8 @@ namespace Graduation_Project.Controllers
             context.SaveChanges();
             return Ok("Question submitted succesfully and will send to the admin");
         }
+        */
         
     }
+        
 }

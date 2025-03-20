@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Graduation_Project.Models
 {
@@ -9,8 +11,10 @@ namespace Graduation_Project.Models
         public string Name { get; set; }
         public string email {  get; set; }
         public string password { get; set; }
-        public string grade { get; set; }
+        [ForeignKey("Grades")]
+        public int GradeId { get; set; }
         public int totalPoints {  get; set; }
+        public Grades Grades { get; set; }
 
     }
 }

@@ -15,7 +15,9 @@ namespace Graduation_Project.Models
         [Required(ErrorMessage = "Password is required")]
         public string password { get; set; }
         public UserType type { get; set; }
-        public string? grade {  get; set; }
+
+        [Required ]
+        public int? grade {  get; set; }
         public string? subject {  get; set; }
 
         public enum UserType

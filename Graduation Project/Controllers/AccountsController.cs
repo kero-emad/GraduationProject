@@ -38,24 +38,28 @@ namespace Graduation_Project.Controllers
             }
             if (model.type == RegisterDTO.UserType.Student)
             {
+                var grade=context.grades
+                    .FirstOrDefault(g=>g.GradeId == model.grade);
                 var student = new students
                 {
                     Name = model.Name,
                     email = model.email,
                     password = model.password,
-                    grade = model.grade,
+                    GradeId = grade.GradeId,
                     totalPoints = 0
                 };
                 context.students.Add(student);
             }
             else if (model.type == RegisterDTO.UserType.Teacher)
             {
+                var subject = context.subjects
+                .FirstOrDefault(s => s.SubjectName == model.subject);
                 var teacher = new Teachers
                 {
                     Name = model.Name,
                     email = model.email,
                     password = model.password,
-                    subject = model.subject
+                    SubjectId = subject.SubjectId
                 };
                 context.teachers.Add(teacher);
             }
@@ -96,7 +100,7 @@ namespace Graduation_Project.Controllers
         };
 
                 var token = GenerateJwtToken(userClaims);
-                return Ok(new { Token = token, expiration = DateTime.Now.AddHours(1), Message = "Student logged in successfully.",email=student.email,name=student.Name,grade=student.grade });
+                return Ok(new { Token = token, expiration = DateTime.Now.AddHours(1), Message = "Student logged in successfully.",email=student.email,name=student.Name,grade=student.GradeId });
             }
 
             // Check if teacher exists
@@ -115,7 +119,7 @@ namespace Graduation_Project.Controllers
         };
 
                 var token = GenerateJwtToken(userClaims);
-                return Ok(new { Token = token, expiration = DateTime.Now.AddHours(1), Message = "Teacher logged in successfully.",email=teacher.email,name=teacher.Name,subject=teacher.subject });
+                return Ok(new { Token = token, expiration = DateTime.Now.AddHours(1), Message = "Teacher logged in successfully.",email=teacher.email,name=teacher.Name,subject=teacher.Subjects.SubjectName });
             }
 
             // Check if other user exists

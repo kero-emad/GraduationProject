@@ -1,0 +1,60 @@
+﻿using Graduation_Project.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace Graduation_Project.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class OffsideGameController : ControllerBase
+    {
+        context context;
+        public OffsideGameController(context _context)
+        {
+            context = _context;
+        }
+
+        [HttpPost("question")]
+        public IActionResult getQuestion([FromBody] GetQuestionsDTO getQuestionsDTO)
+        {
+            var gradeSubject = context.gradeSubject
+            .Include(gs => gs.Grades)
+            .Include(gs => gs.Subjects)
+            .FirstOrDefault(gs =>
+                gs.Grades.GradeId == getQuestionsDTO.grade &&
+                gs.Subjects.SubjectName == getQuestionsDTO.subject);
+
+            if (gradeSubject == null)
+                return NotFound("Grade-Subject combination not found");
+
+            var chapter = context.chapters
+              .FirstOrDefault(c =>
+               c.GradeSubjectId == gradeSubject.GradeSubjectId &&
+               c.ChapterNumber == getQuestionsDTO.chapter);
+
+            if (chapter == null)
+                return NotFound("Chapter not found");
+
+
+
+            var question = context.educationQuestions.Include(q => q.Hints)
+                .Where
+                (q => q.GradeSubjectId == gradeSubject.GradeSubjectId &&
+                 q.ChapterId == chapter.ChapterId &&
+                 q.game == "offside")
+                 .AsEnumerable()
+                .Select(q => new GetInformationDTO
+                {
+                    
+                    information = q.Hints.Select(h => h.hint).ToList(),
+                    correctAnswer = q.answer.Select(c => int.Parse(c.ToString())).ToList()
+                }).FirstOrDefault();
+            if (question == null)
+            {
+                return NotFound("Question not found.");
+            }
+            return Ok(question);
+        }
+    }
+}
