@@ -199,5 +199,31 @@ namespace Graduation_Project.Controllers
             var u = context.users.ToList();
             return Ok(u);
         }
+
+        [HttpPost]
+        [Route("subjects")]
+        public IActionResult subjects([FromBody] int grade)
+        {
+            var subjectsIDs=context.gradeSubject.Where(s=>s.GradeId==grade)
+                .Select(s=>s.SubjectId)
+                .ToList();
+            var subjects = context.subjects.Where(s => subjectsIDs.Contains(s.SubjectId))
+                .Select(s => s.SubjectName)
+                .ToList();
+            return Ok(subjects);
+        }
+        [HttpPost("chapters")]        
+        public IActionResult chapters([FromBody] GetChaptersDTO model)
+        {
+            var subjectID=context.subjects.Where(s=>s.SubjectName==model.subject)
+                .Select(s=>s.SubjectId).FirstOrDefault();
+            var gradesubject=context.gradeSubject
+                .Where(s=>s.GradeId==model.grade&&s.SubjectId==subjectID)
+                .Select(gs=>gs.GradeSubjectId).FirstOrDefault();
+            var chapters = context.chapters.Where(c => c.GradeSubjectId == gradesubject)
+                .ToDictionary(c => c.ChapterNumber, c => c.ChapterName);
+            return Ok(chapters);
+        }
+
     }
 }

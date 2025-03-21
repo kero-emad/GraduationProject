@@ -16,7 +16,6 @@ namespace Graduation_Project.Models
         public string password { get; set; }
         public UserType type { get; set; }
 
-        [Required ]
         public int? grade {  get; set; }
         public string? subject {  get; set; }
 
