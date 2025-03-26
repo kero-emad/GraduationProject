@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Graduation_Project.Models
 {
-    public class context:DbContext
+    public class context:IdentityDbContext<IdentityUser>
 
     {
         public DbSet<students> students {  get; set; }

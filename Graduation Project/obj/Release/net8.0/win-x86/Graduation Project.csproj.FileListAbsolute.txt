@@ -131,3 +131,8 @@ C:\Users\Kero\source\repos\Graduation Project\Graduation Project\obj\Release\net
 C:\Users\Kero\source\repos\Graduation Project\Graduation Project\obj\Release\net8.0\win-x86\ref\Graduation Project.dll
 C:\Users\Kero\source\repos\Graduation Project\Graduation Project\obj\Release\net8.0\win-x86\Graduation Project.sourcelink.json
 C:\Users\Kero\source\repos\Graduation Project\Graduation Project\bin\Release\net8.0\win-x86\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Kero\source\repos\Graduation Project\Graduation Project\bin\Release\net8.0\win-x86\Microsoft.AspNetCore.Cryptography.Internal.dll
+C:\Users\Kero\source\repos\Graduation Project\Graduation Project\bin\Release\net8.0\win-x86\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+C:\Users\Kero\source\repos\Graduation Project\Graduation Project\bin\Release\net8.0\win-x86\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\Kero\source\repos\Graduation Project\Graduation Project\bin\Release\net8.0\win-x86\Microsoft.Extensions.Identity.Core.dll
+C:\Users\Kero\source\repos\Graduation Project\Graduation Project\bin\Release\net8.0\win-x86\Microsoft.Extensions.Identity.Stores.dll

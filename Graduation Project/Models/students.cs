@@ -7,7 +7,7 @@ namespace Graduation_Project.Models
     public class students
     {
         [Key]
-        public int StudentID {  get; set; }
+        public string StudentID {  get; set; }
         public string Name { get; set; }
         public string email {  get; set; }
         public string password { get; set; }

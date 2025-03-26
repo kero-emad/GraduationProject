@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Identity;
+using Graduation_Project.services;
 
 namespace Graduation_Project
 {
@@ -16,6 +18,9 @@ namespace Graduation_Project
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            builder.Services.AddTransient<IEmailService, EmailService>();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin", builder =>
@@ -29,11 +34,21 @@ namespace Graduation_Project
 
             builder.Services.AddDistributedMemoryCache();
 
-           // builder.Services.AddSession(options =>
+
+
+            
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+               .AddEntityFrameworkStores<context>()  // ÊÍÏíÏ ÞÇÚÏÉ ÇáÈíÇäÇÊ
+               .AddDefaultTokenProviders();
+            
+
+
+
+            // builder.Services.AddSession(options =>
             //{
-              //  options.IdleTimeout = TimeSpan.FromMinutes(20);
-               // options.Cookie.HttpOnly = true;
-               // options.Cookie.IsEssential = true;
+            //  options.IdleTimeout = TimeSpan.FromMinutes(20);
+            // options.Cookie.HttpOnly = true;
+            // options.Cookie.IsEssential = true;
             //});
 
             builder.Services.AddControllers();
@@ -41,6 +56,10 @@ namespace Graduation_Project
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("con"));
             });
+
+
+
+           
 
             //------------------------authentication----------------------
             builder.Services.AddAuthentication(options =>
