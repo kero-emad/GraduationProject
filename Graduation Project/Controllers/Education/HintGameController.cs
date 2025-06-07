@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Graduation_Project.Controllers
+namespace Graduation_Project.Controllers.Education
 {
-    [Route("api/[controller]")]
+    [Route("api/education/[controller]")]
     [ApiController]
     public class HintGameController : ControllerBase
     {
@@ -18,7 +18,7 @@ namespace Graduation_Project.Controllers
             context = _context;
         }
         [HttpPost("question")]
-        public IActionResult getQuestion([FromBody]GetQuestionsDTO getQuestionsDTO) 
+        public IActionResult getQuestion([FromBody] GetQuestionsDTO getQuestionsDTO)
         {
             var gradeSubject = context.gradeSubject
             .Include(gs => gs.Grades)
@@ -44,26 +44,29 @@ namespace Graduation_Project.Controllers
                 .Where
                 (q => q.GradeSubjectId == gradeSubject.GradeSubjectId &&
                  q.ChapterId == chapter.ChapterId &&
-                 q.game == "five hints")
+                 q.game == "five hints" &&
+                 q.Hints.Any(h => h.QuestionType == QuestionType.Education))
                 .Select(q => new GetHintsDTO
                 {
-                    hints = q.Hints.Select(h => h.hint).ToList(),
+                    hints = q.Hints
+                    .Where(h => h.QuestionType == QuestionType.Education)
+                    .Select(h => h.hint).ToList(),
                     correctAnswer = q.answer
                 }).FirstOrDefault();
-              if (question == null)
-                {
+            if (question == null)
+            {
                 return NotFound("Question not found.");
-                }
+            }
             //var cookieOptions = new CookieOptions
             //{
-              //  HttpOnly = true, 
-               // Expires = DateTime.Now.AddMinutes(20)
+            //  HttpOnly = true, 
+            // Expires = DateTime.Now.AddMinutes(20)
             //};
             //Response.Cookies.Append("correctAnswer", question.correctAnswer, cookieOptions);
             //HttpContext.Session.SetString("correctAnswer", question.correctAnswer);
             return Ok(question);
         }
-        
+
         [HttpPost("ans")]
         public IActionResult getAnswer(GetAnswerDTO getAnswerDTO)
         {
@@ -76,8 +79,8 @@ namespace Graduation_Project.Controllers
             //string correctans = HttpContext.Session.GetString("correctAnswer");
             //Console.WriteLine($"Correct answer retrieved from session: {correctans}");
             //if (string.IsNullOrEmpty(correctans))
-           // {
-              //  return BadRequest("Correct answer not found in session.");
+            // {
+            //  return BadRequest("Correct answer not found in session.");
             //}
             bool iscorrect = false;
             int hintsused = getAnswerDTO.hintsused;
@@ -93,7 +96,7 @@ namespace Graduation_Project.Controllers
                     else if (hintsused == 4) return Ok(10);
                     else if (hintsused == 5) return Ok(5);
                 }
-                else 
+                else
                 {
                     return Ok(0);
                 }
@@ -150,7 +153,7 @@ namespace Graduation_Project.Controllers
             return Ok("Question submitted succesfully and will send to the admin");
         }
         */
-        
+
     }
-        
+
 }

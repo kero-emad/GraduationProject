@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Graduation_Project.Controllers
+namespace Graduation_Project.Controllers.Education
 {
-    [Route("api/[controller]")]
+    [Route("api/education/[controller]")]
     [ApiController]
     public class OffsideGameController : ControllerBase
     {
@@ -42,12 +42,15 @@ namespace Graduation_Project.Controllers
                 .Where
                 (q => q.GradeSubjectId == gradeSubject.GradeSubjectId &&
                  q.ChapterId == chapter.ChapterId &&
-                 q.game == "offside")
+                 q.game == "offside" &&
+                 q.Hints.Any(h => h.QuestionType == QuestionType.Education))
                  .AsEnumerable()
                 .Select(q => new GetInformationDTO
                 {
-                    
-                    information = q.Hints.Select(h => h.hint).ToList(),
+
+                    information = q.Hints
+                    .Where(h => h.QuestionType == QuestionType.Education)
+                    .Select(h => h.hint).ToList(),
                     correctAnswer = q.answer.Select(c => int.Parse(c.ToString())).ToList()
                 }).FirstOrDefault();
             if (question == null)

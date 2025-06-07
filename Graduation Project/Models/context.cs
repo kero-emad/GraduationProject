@@ -16,7 +16,9 @@ namespace Graduation_Project.Models
         public DbSet<Subjects>subjects { get; set; }
         public DbSet<GradeSubject>gradeSubject { get; set; }
         public DbSet<EducationQuestions> educationQuestions { get; set; }
+        public DbSet<EntertainmentQuestions>entertainmentQuestions { get; set; }
         public DbSet<Hints> hints { get; set; }
+        public DbSet<Questions>questions { get; set; }
         public context(DbContextOptions<context> options) : base(options) { }
     }
 }

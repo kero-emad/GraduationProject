@@ -76,44 +76,6 @@ namespace Graduation_Project.Migrations
                     b.ToTable("chapters");
                 });
 
-            modelBuilder.Entity("Graduation_Project.Models.EducationQuestions", b =>
-                {
-                    b.Property<int>("QuestionID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuestionID"));
-
-                    b.Property<int>("ChapterId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GradeSubjectId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("answer")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("game")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("summary")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("QuestionID");
-
-                    b.HasIndex("ChapterId");
-
-                    b.HasIndex("GradeSubjectId");
-
-                    b.ToTable("educationQuestions");
-                });
-
             modelBuilder.Entity("Graduation_Project.Models.GradeSubject", b =>
                 {
                     b.Property<int>("GradeSubjectId")
@@ -165,6 +127,9 @@ namespace Graduation_Project.Migrations
                     b.Property<int>("QuestionID")
                         .HasColumnType("int");
 
+                    b.Property<int>("QuestionType")
+                        .HasColumnType("int");
+
                     b.Property<string>("hint")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -174,6 +139,43 @@ namespace Graduation_Project.Migrations
                     b.HasIndex("QuestionID");
 
                     b.ToTable("hints");
+                });
+
+            modelBuilder.Entity("Graduation_Project.Models.Questions", b =>
+                {
+                    b.Property<int>("QuestionID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuestionID"));
+
+                    b.Property<int>("DifficultyLevel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(34)
+                        .HasColumnType("nvarchar(34)");
+
+                    b.Property<string>("answer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("game")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("summary")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("QuestionID");
+
+                    b.ToTable("questions");
+
+                    b.HasDiscriminator().HasValue("Questions");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Graduation_Project.Models.Subjects", b =>
@@ -470,6 +472,36 @@ namespace Graduation_Project.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Graduation_Project.Models.EducationQuestions", b =>
+                {
+                    b.HasBaseType("Graduation_Project.Models.Questions");
+
+                    b.Property<int>("ChapterId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GradeSubjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.HasIndex("ChapterId");
+
+                    b.HasIndex("GradeSubjectId");
+
+                    b.HasDiscriminator().HasValue("EducationQuestions");
+                });
+
+            modelBuilder.Entity("Graduation_Project.Models.EntertainmentQuestions", b =>
+                {
+                    b.HasBaseType("Graduation_Project.Models.Questions");
+
+                    b.Property<int>("section")
+                        .HasColumnType("int");
+
+                    b.HasDiscriminator().HasValue("EntertainmentQuestions");
+                });
+
             modelBuilder.Entity("Graduation_Project.Models.Chapters", b =>
                 {
                     b.HasOne("Graduation_Project.Models.GradeSubject", "GradeSubject")
@@ -477,25 +509,6 @@ namespace Graduation_Project.Migrations
                         .HasForeignKey("GradeSubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("GradeSubject");
-                });
-
-            modelBuilder.Entity("Graduation_Project.Models.EducationQuestions", b =>
-                {
-                    b.HasOne("Graduation_Project.Models.Chapters", "Chapters")
-                        .WithMany()
-                        .HasForeignKey("ChapterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Graduation_Project.Models.GradeSubject", "GradeSubject")
-                        .WithMany("EducationQuestions")
-                        .HasForeignKey("GradeSubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Chapters");
 
                     b.Navigation("GradeSubject");
                 });
@@ -521,13 +534,13 @@ namespace Graduation_Project.Migrations
 
             modelBuilder.Entity("Graduation_Project.Models.Hints", b =>
                 {
-                    b.HasOne("Graduation_Project.Models.EducationQuestions", "EducationQuestions")
+                    b.HasOne("Graduation_Project.Models.Questions", "Questions")
                         .WithMany("Hints")
                         .HasForeignKey("QuestionID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("EducationQuestions");
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("Graduation_Project.Models.Teachers", b =>
@@ -605,7 +618,21 @@ namespace Graduation_Project.Migrations
 
             modelBuilder.Entity("Graduation_Project.Models.EducationQuestions", b =>
                 {
-                    b.Navigation("Hints");
+                    b.HasOne("Graduation_Project.Models.Chapters", "Chapters")
+                        .WithMany()
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Graduation_Project.Models.GradeSubject", "GradeSubject")
+                        .WithMany("EducationQuestions")
+                        .HasForeignKey("GradeSubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chapters");
+
+                    b.Navigation("GradeSubject");
                 });
 
             modelBuilder.Entity("Graduation_Project.Models.GradeSubject", b =>
@@ -613,6 +640,11 @@ namespace Graduation_Project.Migrations
                     b.Navigation("Chapters");
 
                     b.Navigation("EducationQuestions");
+                });
+
+            modelBuilder.Entity("Graduation_Project.Models.Questions", b =>
+                {
+                    b.Navigation("Hints");
                 });
 #pragma warning restore 612, 618
         }

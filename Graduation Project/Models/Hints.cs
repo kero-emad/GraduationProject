@@ -8,8 +8,17 @@ namespace Graduation_Project.Models
         [Key]
         public int HintID {  get; set; }
         public string hint {  get; set; }
-        [ForeignKey("EducationQuestions")]
+        [ForeignKey("Questions")]
         public int QuestionID {  get; set; }
-        public EducationQuestions EducationQuestions { get; set; }
+        public QuestionType QuestionType { get; set; }
+
+        public Questions Questions { get; set; }
+
+    }
+
+    public enum QuestionType
+    {
+        Education,
+        Entertainment
     }
 }
