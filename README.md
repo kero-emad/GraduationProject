@@ -341,10 +341,4 @@ Please make sure your code follows existing conventions and all migrations are i
 
 ---
 
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
 <p align="center">Made with ❤️ as a Graduation Project — Powered by ASP.NET Core 8 & Google Gemini AI</p>
