@@ -335,10 +335,4 @@ Please make sure your code follows existing conventions and all migrations are i
 
 ---
 
-## 👥 Team
-
-> This project was developed as a graduation project. Feel free to update this section with your team members.
-
----
-
-<p align="center">Made with ❤️ as a Graduation Project — Powered by ASP.NET Core 8 & Google Gemini AI</p>
+<p align="center">Made with ❤️ as a Graduation Project — Powered by ASP.NET Core 8 >
