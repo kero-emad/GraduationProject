@@ -335,4 +335,4 @@ Please make sure your code follows existing conventions and all migrations are i
 
 ---
 
-<p align="center">Made with ❤️ as a Graduation Project — Powered by ASP.NET Core 8 >
+<p align="center">Made with ❤️ as a Graduation Project — Powered by ASP.NET Core 8
